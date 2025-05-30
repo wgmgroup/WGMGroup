@@ -243,7 +243,7 @@ function submitSurvey() {
     });
   });
 
-  fetch("https://prod-144.westus.logic.azure.com/workflows/92c9743b383544edad8bf94919e183d0/triggers/manual/paths/invoke?api-version=2016-06-01", {
+  fetch("https://prod-144.westus.logic.azure.com:443/workflows/92c9743b383544edad8bf94919e183d0/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=uHw3pt9-NiKoo5j0TN5NQR7kaVQGR4T2l8aNHEPEUyM", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(responses)
