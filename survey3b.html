@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Firm Feedback Survey</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f4f8fc;
+      margin: 0;
+      padding: 2rem;
+    }
+
+    .survey-wrapper {
+      max-width: 1000px;
+      margin: auto;
+    }
+
+    .question-block {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 30px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+
+    .question-text {
+      flex: 1;
+      margin-right: 2rem;
+    }
+
+    .question-text h3 {
+      margin: 0;
+      font-size: 18px;
+      color: #003366;
+    }
+
+    .question-text p {
+      font-size: 14px;
+      margin-top: 6px;
+    }
+
+    .comment-box {
+      width: 100%;
+      min-height: 80px;
+      padding: 10px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      resize: vertical;
+      margin-top: 10px;
+    }
+
+    .slider-section {
+      width: 280px;
+      background: #e9f1fc;
+      padding: 20px;
+      border-radius: 16px;
+    }
+
+    .slider-section h4 {
+      margin-top: 0;
+      margin-bottom: 16px;
+      font-size: 16px;
+      background: #003366;
+      color: white;
+      padding: 10px 14px;
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    .labels {
+      display: flex;
+      flex-direction: column-reverse;
+      font-size: 14px;
+    }
+
+    .labels span {
+      height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      padding-left: 10px;
+    }
+
+    .slider-wrapper {
+      position: relative;
+      height: 240px;
+      margin-left: 20px;
+      display: flex;
+      align-items: center;
+    }
+
+    input[type="range"] {
+      writing-mode: bt-lr;
+      -webkit-appearance: slider-vertical;
+      appearance: slider-vertical;
+      height: 240px;
+      width: 30px;
+      margin: 0;
+    }
+
+    .value-bubble {
+      position: absolute;
+      left: 50px;
+      background: #fff;
+      padding: 4px 8px;
+      border-radius: 6px;
+      box-shadow: 0 0 4px rgba(0,0,0,0.2);
+      font-weight: bold;
+      font-size: 14px;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .value-label {
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+<div class="survey-wrapper">
+  <!-- Insert questions -->
+  <div id="questions"></div>
+
+  <!-- Final Comments -->
+  <div class="question-block">
+    <div class="question-text">
+      <h3>Other Comments <span style="font-weight: normal; font-size: 13px;">(Comments ONLY)</span></h3>
+      <p>Please enter any additional comments in the text box below.</p>
+      <textarea class="comment-box" placeholder="Additional comments..."></textarea>
+    </div>
+  </div>
+</div>
+
+<script>
+  const questionData = [
+    { label: "Helpfulness", text: "Compared to other firms in their profession, how well did WGM Group solve your problems and meet your goals?" },
+    { label: "Responsiveness", text: "Compared to others in their profession, how responsive was WGM Group when you needed their assistance?" },
+    { label: "Quality", text: "Compared to others in their profession, how consistently has WGM Group provided work of appropriate quality?" },
+    { label: "Accuracy", text: "Compared to others in their profession, how well has WGM Group's skill set met your needs?" },
+    { label: "Schedule", text: "Compared to others in their profession, how well has WGM Group helped you manage your project schedules?" },
+    { label: "Budget", text: "Compared to others in their profession, how well has WGM Group helped you manage your project budgets?" },
+    { label: "Scope and Fees", text: "Compared to other firms in their profession, how valuable have WGM Group's services been?" },
+    { label: "Likelihood to Recommend", text: "How likely are you to recommend WGM Group to a colleague or peer?", scale: 10 }
+  ];
+
+  const standardLabels = {
+    1: "Unacceptable",
+    2: "Needed Improvement",
+    3: "Acceptable",
+    4: "Met Expectations",
+    5: "Exceeded Expectations",
+    6: "Excellent",
+    7: "Exceptional"
+  };
+
+  const recommendLabels = {
+    1: "Not Likely",
+    2: "2",
+    3: "3",
+    4: "4",
+    5: "5",
+    6: "6",
+    7: "7",
+    8: "8",
+    9: "9",
+    10: "Likely"
+  };
+
+  const questionsDiv = document.getElementById("questions");
+
+  questionData.forEach((q, index) => {
+    const isRecommend = q.label === "Likelihood to Recommend";
+    const scaleMax = q.scale || 7;
+    const id = `slider-${index}`;
+    const labels = isRecommend ? recommendLabels : standardLabels;
+
+    const container = document.createElement("div");
+    container.className = "question-block";
+    container.innerHTML = `
+      <div class="question-text">
+        <h3>${q.label} <span style="font-weight: normal; font-size: 13px;">${isRecommend ? '' : '(Scale and Comments)'}</span></h3>
+        <p>${q.text}</p>
+        <textarea class="comment-box" placeholder="Add a comment (optional)"></textarea>
+      </div>
+      <div class="slider-section">
+        <h4>${q.label}</h4>
+        <div style="display: flex;">
+          <div class="labels">
+            ${Object.entries(labels).map(([k, v]) => `<span>${v}</span>`).join('')}
+          </div>
+          <div class="slider-wrapper">
+            <input type="range" min="1" max="${scaleMax}" step="0.1" value="${Math.ceil(scaleMax/2)}" id="${id}">
+            <div class="value-bubble" id="bubble-${index}">${Math.ceil(scaleMax/2)} <span class="value-label">${labels[Math.ceil(scaleMax/2)]}</span></div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    questionsDiv.appendChild(container);
+
+    const slider = container.querySelector(`#${id}`);
+    const bubble = container.querySelector(`#bubble-${index}`);
+
+    function updateBubble() {
+      const percent = (slider.max - slider.value) / (slider.max - slider.min);
+      const top = percent * (slider.offsetHeight - 16);
+      const rounded = parseFloat(slider.value).toFixed(1);
+      const roundedInt = Math.round(slider.value);
+      bubble.style.top = `${top}px`;
+      bubble.innerHTML = `${rounded} <span class="value-label">${labels[roundedInt]}</span>`;
+    }
+
+    slider.addEventListener("input", updateBubble);
+    window.addEventListener("load", updateBubble);
+  });
+</script>
+</body>
+</html>
