@@ -249,7 +249,7 @@
     console.log("Survey Responses:", responses);
 
     // Replace the following with your real endpoint:
-    fetch("https://prod-144.westus.logic.azure.com:443/workflows/92c9743b383544edad8bf94919e183d0/triggers/manual/paths/invoke?api-version=2016-06-01", {
+    fetch("https://prod-144.westus.logic.azure.com/workflows/92c9743b383544edad8bf94919e183d0/triggers/manual/paths/invoke?api-version=2016-06-01", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(responses)
