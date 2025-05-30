@@ -144,15 +144,16 @@
     <div id="thank-you" style="display:none; margin-top: 20px; color: green; font-weight: bold;">Thank you for your feedback!</div>
   </div>
 </div>
+
 <script>
   const questionData = [
     { label: "Helpfulness", text: "Compared to other firms in their profession, how well did WGM Group solve your problems and meet your goals?" },
     { label: "Responsiveness", text: "Compared to others in their profession, how responsive was WGM Group when you needed their assistance?" },
     { label: "Quality", text: "Compared to others in their profession, how consistently has WGM Group provided work of appropriate quality?" },
     { label: "Accuracy", text: "Compared to others in their profession, how well has WGM Group's skill set met your needs?" },
-    { label: "Schedule", text: "Compared to others in their profession, how well has WGM Group helped you manage your project schedules?" },
-    { label: "Budget", text: "Compared to others in their profession, how well has WGM Group helped you manage your project budgets?" },
-    { label: "Scope and Fees", text: "Compared to other firms in their profession, how valuable have WGM Group's services been?" },
+    { label: "Schedule", text: "Compared to others in their profession, how well has WG Group done its part to help you manage your project schedules?" },
+    { label: "Budget", text: "Compared to others in their profession, how well has WGM Group done its part to help you manage your project budgets?" },
+    { label: "Scope and Fees", text: "Compared to other firms in their profession, how valuable have their services been?" },
     { label: "Likelihood to Recommend", text: "How likely are you to recommend WGM Group to a colleague or peer?", scale: 10 }
   ];
 
@@ -166,41 +167,43 @@
     7: "Exceptional"
   };
 
-  const recommendLabels = {
-    1: "Not Likely",
-    2: "2",
-    3: "3",
-    4: "4",
-    5: "5",
-    6: "6",
-    7: "7",
-    8: "8",
-    9: "9",
-    10: "Likely"
-  };
-
   const questionsDiv = document.getElementById("questions");
 
   questionData.forEach((q, index) => {
     const isRecommend = q.label === "Likelihood to Recommend";
     const scaleMax = q.scale || 7;
     const id = `slider-${index}`;
-    const labels = isRecommend ? recommendLabels : standardLabels;
+    const commentId = `comment-${index}`;
+const labels = isRecommend ? recommendLabels : standardLabels;
+
+    const recommendLabels = isRecommend
+      ? {
+          1: "Not Likely",
+          2: "2",
+          3: "3",
+          4: "4",
+          5: "5",
+          6: "6",
+          7: "7",
+          8: "8",
+          9: "9",
+          10: "Likely"
+        }
+      : labels;
 
     const container = document.createElement("div");
     container.className = "question-block";
     container.innerHTML = `
       <div class="question-text">
-        <h3>${q.label} <span style="font-weight: normal; font-size: 13px;">${isRecommend ? '' : '(Scale and Comments)'}</span></h3>
+        <h3>${q.label} <span style="font-weight: normal; font-size: 13px;">${isRecommend ? '' : '(Scale and Comments)</span></h3>
         <p>${q.text}</p>
-        <textarea class="comment-box" id="comment-${index}" placeholder="Add a comment (optional)"></textarea>
-
+        <textarea class="comment-box" id="${commentId}" placeholder="Add a comment (optional)"></textarea>
       </div>
       <div class="slider-section">
         <h4>${q.label}</h4>
         <div style="display: flex;">
           <div class="labels">
-            ${Object.entries(labels).map(([k, v]) => `<span>${v}</span>`).join('')}
+            ${Object.entries(labels).map(([k, v]) => `<span>${v}</span>`).join('')}join('')}
           </div>
           <div class="slider-wrapper">
             <input type="range" min="1" max="${scaleMax}" step="0.1" value="${Math.ceil(scaleMax/2)}" id="${id}">
@@ -209,7 +212,6 @@
         </div>
       </div>
     `;
-
     questionsDiv.appendChild(container);
 
     const slider = container.querySelector(`#${id}`);
@@ -218,53 +220,53 @@
     function updateBubble() {
       const percent = (slider.max - slider.value) / (slider.max - slider.min);
       const top = percent * (slider.offsetHeight - 16);
-      const rounded = parseFloat(slider.value).toFixed(1);
-      const roundedInt = Math.round(slider.value);
+      const rounded = parseInt(slider.value);
       bubble.style.top = `${top}px`;
       bubble.innerHTML = `${rounded} <span class="value-label">${labels[roundedInt]}</span>`;
     }
 
     slider.addEventListener("input", updateBubble);
-    window.addEventListener("load", updateBubble);
+    updateBubble();
   });
-function submitSurvey() {
-  const clientName = document.getElementById("client-name").value.trim();
-  const timestamp = new Date().toISOString();
-  const responses = [];
 
-  questionData.forEach((q, index) => {
-    const slider = document.getElementById(`slider-${index}`);
-    const comment = document.getElementById(`comment-${index}`).value.trim();
-    responses.push({
-      timestamp,
-      client: clientName,
-      question: q.label,
-      score: slider.value,
-      comment: comment
+  function submitSurvey() {
+    const clientName = document.getElementById("client-name").value.trim();
+    const timestamp = new Date().toISOString();
+    const responses = [];
+
+    questionData.forEach((q, index) => {
+      const slider = document.getElementById(`slider-${index}`);
+      const comment = document.getElementById(`comment-${index}`).value.trim();
+      responses.push({
+        timestamp,
+        client: clientName,
+        question: q.label,
+        score: slider.value,
+        comment: comment
+      });
     });
-  });
 
-  // Example placeholder for sending data
+    // Example placeholder for sending data
     console.log("Survey Responses:", responses);
 
     // Replace the following with your real endpoint:
-  fetch("https://prod-144.westus.logic.azure.com:443/workflows/92c9743b383544edad8bf94919e183d0/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=uHw3pt9-NiKoo5j0TN5NQR7kaVQGR4T2l8aNHEPEUyM", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(responses)
-  })
-  .then(res => {
-    if (res.ok) {
-      document.getElementById("thank-you").style.display = "block";
-    } else {
-      alert("There was an error submitting your survey. Please try again later.");
-    }
-  })
-  .catch(err => {
-    console.error("Submission error:", err);
-    alert("Network error. Please check your connection.");
-  });
-}
+    fetch("https://prod-144.westus.logic.azure.com:443/workflows/92c9743b383544edad8bf94919e183d0/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=uHw3pt9-NiKoo5j0TN5NQR7kaVQGR4T2l8aNHEPEUyM", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(responses)
+    })
+    .then(res => {
+      if (res.ok) {
+        document.getElementById("thank-you").style.display = "block";
+      } else {
+        alert("There was an error submitting your survey. Please try again later.");
+      }
+    })
+    .catch(err => {
+      console.error("Submission error:", err);
+      alert("Network error. Please check your connection.");
+    });
+  }
 </script>
 </body>
 </html>
