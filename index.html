@@ -193,7 +193,8 @@
       <div class="question-text">
         <h3>${q.label} <span style="font-weight: normal; font-size: 13px;">${isRecommend ? '' : '(Scale and Comments)'}</span></h3>
         <p>${q.text}</p>
-        <textarea class="comment-box" placeholder="Add a comment (optional)"></textarea>
+        <textarea class="comment-box" id="comment-${index}" placeholder="Add a comment (optional)"></textarea>
+
       </div>
       <div class="slider-section">
         <h4>${q.label}</h4>
