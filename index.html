@@ -209,7 +209,7 @@
           <div class="labels">
             ${Object.entries(labels).map(([k, v]) => `<span>${v}</span>`).join('')}
           </div>
-         <div class="slider-wrapper" style="${isRecommend ? 'margin-top: 60px;' : ''}">
+         <div class="slider-wrapper" style="${isRecommend ? 'margin-top: 40px;' : ''}">
 
 
             <input type="range" min="1" max="${scaleMax}" step="0.1" value="${Math.ceil(scaleMax/2)}" id="${id}" style="${isRecommend ? 'height: 330px;' : ''}">
