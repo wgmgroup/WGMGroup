@@ -126,27 +126,30 @@
 <body>
 <div class="survey-wrapper">
   <!-- Insert questions -->
-  <div id="questions"></div>
+<div class="question-block">
+  <div class="question-text">
+    <h3>Client Name</h3>
+    <input type="text" id="client-name" placeholder="Enter client name" style="width: 100%; padding: 8px; font-size: 14px; border: 1px solid #ccc; border-radius: 4px;">
+  </div>
+</div>
+  
+<div id="questions"></div>
 
   <!-- Final Comments -->
   <div class="question-block">
     <div class="question-text">
       <h3>Other Comments <span style="font-weight: normal; font-size: 13px;">(Comments ONLY)</span></h3>
       <p>Please enter any additional comments in the text box below.</p>
-      <textarea class="comment-box" placeholder="Additional comments..."></textarea>
+      <textarea class="comment-box" id="comment-${index}" placeholder="Add a comment (optional)"></textarea>
+
     </div>
   </div>
 </div>
-<div class="question-block">
-  <div class="question-text">
-    <h3>Your Name or Company</h3>
-    <input type="text" id="clientName" class="comment-box" placeholder="Enter your name or company..." />
-  </div>
+<div style="text-align:center;">
+  <button onclick="submitSurvey()" style="padding: 10px 20px; font-size: 16px; background: #003366; color: white; border: none; border-radius: 6px; cursor: pointer;">Submit</button>
+  <div id="thank-you" style="display:none; margin-top: 20px; color: green; font-weight: bold;">Thank you for your feedback!</div>
 </div>
 
-<div class="question-block">
-  <button onclick="submitSurvey()" style="padding: 10px 20px; font-size: 16px;">Submit Feedback</button>
-</div>
 <script>
   const questionData = [
     { label: "Helpfulness", text: "Compared to other firms in their profession, how well did WGM Group solve your problems and meet your goals?" },
@@ -229,49 +232,41 @@
     slider.addEventListener("input", updateBubble);
     window.addEventListener("load", updateBubble);
   });
-</script>
-<script>
-  async function submitSurvey() {
-    const client = document.getElementById("clientName").value;
-    const timestamp = new Date().toISOString();
-    const responses = [];
+function submitSurvey() {
+  const clientName = document.getElementById("client-name").value.trim();
+  const timestamp = new Date().toISOString();
+  const responses = [];
 
-    questionData.forEach((q, index) => {
-      const slider = document.getElementById(`slider-${index}`);
-      const comment = document.querySelectorAll('.comment-box')[index].value;
-      responses.push({
-        timestamp,
-        client,
-        question: q.label,
-        score: parseFloat(slider.value),
-        comment
-      });
+  questionData.forEach((q, index) => {
+    const slider = document.getElementById(`slider-${index}`);
+    const comment = document.getElementById(`comment-${index}`).value.trim();
+    responses.push({
+      timestamp,
+      client: clientName,
+      question: q.label,
+      score: slider.value,
+      comment: comment
     });
+  });
 
-    // Get the final comment separately (last comment-box in the DOM)
-    const finalCommentBox = document.querySelectorAll('.comment-box');
-    const overallComment = finalCommentBox[finalCommentBox.length - 1].value;
-
-    if (overallComment) {
-      responses.push({
-        timestamp,
-        client,
-        question: "Additional Comments",
-        score: "",
-        comment: overallComment
-      });
+  fetch("https://prod-144.westus.logic.azure.com:443/workflows/92c9743b383544edad8bf94919e183d0/triggers/manual/paths/invoke?api-version=2016-06-01", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(responses)
+  })
+  .then(res => {
+    if (res.ok) {
+      document.getElementById("thank-you").style.display = "block";
+    } else {
+      alert("There was an error submitting your survey. Please try again later.");
     }
+  })
+  .catch(err => {
+    console.error("Submission error:", err);
+    alert("Network error. Please check your connection.");
+  });
+}
 
-    for (const response of responses) {
-      await fetch("https://prod-144.westus.logic.azure.com:443/workflows/92c9743b383544edad8bf94919e183d0/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=uHw3pt9-NiKoo5j0TN5NQR7kaVQGR4T2l8aNHEPEUyM", {  // Replace with your actual Flow URL
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(response)
-      });
-    }
-
-    alert("Thank you for your feedback!");
-  }
 </script>
 </body>
 </html>
