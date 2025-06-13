@@ -270,8 +270,12 @@ responses.push({
     })
     .then(res => {
       if (res.ok) {
-        document.getElementById("thank-you").style.display = "block";
-      } else {
+  document.body.innerHTML = `
+    <div style="display: flex; justify-content: center; align-items: center; height: 100vh; background: #f4f8fc; font-family: sans-serif;">
+      <h1 style="color: #003366;">Thank you for your feedback!</h1>
+    </div>
+  `;
+} else {
         alert("There was an error submitting your survey. Please try again later.");
       }
     })
